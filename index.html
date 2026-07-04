@@ -107,6 +107,16 @@ section{padding:78px 0}
 .pc-list{list-style:none}
 .pc-list li{position:relative;padding-left:17px;font-size:14.5px;color:#384148;margin-bottom:7px;line-height:1.6}
 .pc-list li::before{content:"";position:absolute;left:0;top:10px;width:5px;height:5px;border-radius:1px;background:var(--accent);transform:rotate(45deg)}
+.pc-list li a {
+  color: #333333;
+  text-decoration: none;
+  padding-bottom: 2px;    /* 글자와 밑줄 사이의 간격 조정 */
+  border-bottom: 2px solid #1a73e8; /* 원하는 두께와 색상의 밑줄 생성 */
+}
+.pc-list li a:hover {
+  color: #1a73e8;
+  border-bottom-width: 3px; /* 마우스 올리면 밑줄이 더 두꺼워짐 */
+}
 .pc-group + .pc-group{margin-top:16px}
 .pc-glabel{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.04em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed var(--line)}
 .contact{background:var(--dark);color:#DCE6E6}
@@ -195,8 +205,8 @@ section{padding:78px 0}
         <div class="pc-glabel mono">방송</div>
         <ul class="pc-list"><li>방송 웹서비스 운영</li><li>방송 CMS .NET → Java 전환</li><li>스포츠 빅이벤트(올림픽·월드컵) 대응 CMS 개발</li></ul></div>
       <div class="pc-group">
-        <div class="pc-glabel mono">AI 활용</div>
-        <ul class="pc-list"><li><a href="./election.html">AI와 함께한 지방선거 개발 사이클 구축</a></li><li><a href="./migration.html">.NET -> JAVA 전환 여정기</a></li></ul></div>
+        <div class="pc-glabel mono">AI 활용 사례</div>
+        <ul class="pc-list"><li><a href="./election.html" target="_blank">지방선거 개발 사이클 구축</a></li><li><a href="./migration.html" target="_blank">.NET -> JAVA 전환 여정기</a></li></ul></div>
     </div>
   </div>
 </div>
