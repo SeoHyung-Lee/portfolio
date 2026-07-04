@@ -1,0 +1,653 @@
+<title>지방선거 개표 방송, AI와 함께 개발했습니다</title>
+<style>
+:root {
+  --ground: #111318;
+  --surface: #191c27;
+  --surface-2: #21253a;
+  --text: #e4e2f0;
+  --muted: #868aaa;
+  --dim: #3a3d52;
+  --accent: #f0a500;
+  --blue: #6a9fd8;
+  --green: #6bebb8;
+  --border: #242840;
+  --code-bg: #13151f;
+
+  --sans: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+          'Malgun Gothic', 'Noto Sans KR', sans-serif;
+  --mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.78;
+  -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 740px; margin: 0 auto; padding: 0 24px; }
+
+/* COPY BAR */
+.copy-bar {
+  margin: 32px 0 0;
+  padding: 14px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.copy-bar p { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0; }
+.copy-btn {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #111;
+  border: none;
+  border-radius: 4px;
+  padding: 7px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.copy-btn:hover { opacity: 0.82; }
+.copy-btn.copied { background: var(--green); }
+
+/* HERO */
+.hero { padding: 64px 0 52px; border-bottom: 1px solid var(--border); }
+.eyebrow { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.1em; opacity: 0.8; margin-bottom: 22px; }
+.hero-title { font-size: clamp(26px, 5vw, 40px); font-weight: 800; line-height: 1.22; letter-spacing: -0.025em; margin-bottom: 20px; }
+.from-tech { display: block; color: var(--muted); font-weight: 700; font-size: 0.72em; text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 1.5px; margin-bottom: 4px; }
+.arrow-sep { color: var(--accent); font-weight: 300; margin-right: 6px; }
+.to-tech { color: var(--text); }
+.hero-sub { font-size: 16px; color: var(--muted); max-width: 540px; line-height: 1.65; margin-bottom: 28px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { font-family: var(--mono); font-size: 11.5px; padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); }
+.pill.hi { border-color: rgba(240,165,0,0.4); color: var(--accent); }
+
+/* CONTENT */
+.content { padding: 60px 0 40px; }
+.section { margin-bottom: 68px; }
+.sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.sec-n { font-family: var(--mono); font-size: 11px; color: var(--accent); opacity: 0.6; flex-shrink: 0; letter-spacing: 0.05em; }
+.sec-title { font-size: 20px; font-weight: 700; letter-spacing: -0.015em; }
+
+/* PROSE */
+.prose p { margin-bottom: 18px; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { font-weight: 600; color: var(--text); }
+
+/* SUB TITLE */
+.sub-title { font-family: var(--mono); font-size: 13px; color: var(--blue); font-weight: 600; letter-spacing: 0.02em; margin: 36px 0 14px; }
+
+/* DECISION BOX */
+.decision { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 22px 26px; margin: 28px 0; }
+.decision-label { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+.decision p { color: var(--muted); font-size: 14.5px; margin-bottom: 8px; line-height: 1.65; }
+.decision p:last-child { margin-bottom: 0; }
+
+/* REASONS */
+.reasons { list-style: none; margin: 18px 0; }
+.reasons li { position: relative; padding: 14px 16px 14px 42px; margin-bottom: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-size: 14.5px; color: var(--text); line-height: 1.65; }
+.reasons li::before { content: attr(data-n); position: absolute; left: 14px; top: 14px; font-family: var(--mono); font-size: 11px; color: var(--accent); opacity: 0.75; }
+.reasons li strong { display: block; margin-bottom: 4px; font-size: 13.5px; }
+
+/* CODE */
+pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 20px 22px; overflow-x: auto; margin: 20px 0; position: relative; }
+pre::after { content: attr(data-lang); position: absolute; top: 9px; right: 14px; font-family: var(--mono); font-size: 10px; color: var(--muted); opacity: 0.45; text-transform: uppercase; letter-spacing: 0.1em; }
+pre code { font-family: var(--mono); font-size: 13px; line-height: 1.65; color: #c8d0e8; background: none; border: none; padding: 0; }
+p code, li code { font-family: var(--mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 2px 6px; color: var(--blue); }
+.kw { color: #c792ea; }
+.st { color: #c3e88d; }
+.cm { color: #546e7a; font-style: italic; }
+.at { color: var(--accent); }
+.cl { color: #82aaff; }
+.an { color: var(--accent); }
+.nm { color: #6bebb8; }
+
+/* TROUBLE CARDS */
+.trouble { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid rgba(107,235,184,0.4); border-radius: 6px; padding: 20px 22px; margin-bottom: 14px; }
+.trouble-label { font-family: var(--mono); font-size: 10px; color: var(--green); opacity: 0.7; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.trouble p { font-size: 14.5px; color: var(--muted); line-height: 1.65; }
+.trouble p + p { margin-top: 10px; }
+
+/* CARDS */
+.cards { margin: 24px 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px 22px; margin-bottom: 12px; }
+.card-label { font-family: var(--mono); font-size: 11px; color: var(--accent); opacity: 0.7; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.card p { font-size: 14.5px; color: var(--muted); line-height: 1.65; }
+
+/* STEP LIST */
+ol.steps { list-style: none; counter-reset: step; margin: 18px 0; }
+ol.steps li { counter-increment: step; position: relative; padding: 10px 0 10px 40px; border-bottom: 1px solid var(--border); font-size: 14.5px; color: var(--text); }
+ol.steps li:last-child { border-bottom: none; }
+ol.steps li::before { content: counter(step, decimal-leading-zero); position: absolute; left: 0; top: 10px; font-family: var(--mono); font-size: 11px; color: var(--accent); opacity: 0.7; }
+
+/* STAT ROW */
+.stats { display: flex; gap: 2px; margin: 28px 0; }
+.stat { flex: 1; background: var(--surface); border: 1px solid var(--border); padding: 20px 18px; text-align: center; }
+.stat:first-child { border-radius: 6px 0 0 6px; }
+.stat:last-child { border-radius: 0 6px 6px 0; }
+.stat-num { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent); display: block; line-height: 1; margin-bottom: 8px; }
+.stat-label { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+/* TABLE */
+.tbl-wrap { overflow-x: auto; margin: 20px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { background: var(--surface); color: var(--muted); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+tr:last-child td { border-bottom: none; }
+
+/* OUTRO */
+.outro { padding: 40px 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 60px; }
+.outro p { color: var(--muted); font-size: 15px; line-height: 1.75; }
+.outro p + p { margin-top: 14px; }
+.outro strong { color: var(--text); }
+
+/* FOOTER */
+.footer { border-top: 1px solid var(--border); padding: 32px 0; text-align: center; font-family: var(--mono); font-size: 11px; color: var(--muted); opacity: 0.6; }
+
+@media (max-width: 580px) {
+  .hero { padding: 48px 0 40px; }
+  .copy-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .stats { flex-direction: column; gap: 2px; }
+  .stat:first-child { border-radius: 6px 6px 0 0; }
+  .stat:last-child { border-radius: 0 0 6px 6px; }
+}
+</style>
+
+<div class="page">
+
+  <header class="hero">
+    <h1 class="hero-title">
+      <span class="from-tech">혼자 분석 했던 레거시 탐색에서</span>
+      <span class="arrow-sep">→</span>
+      <span class="to-tech">AI와 함께한 지방선거 개발 사이클로</span>
+    </h1>
+    <p class="hero-sub">마감은 촉박하고 코드베이스는 낯설었다. Claude Code를 실전에 처음 투입한 기록 — 무엇이 도움이 됐고, 어디서 삐걱거렸고, 다음엔 뭘 다르게 할 것인가.</p>
+    <div class="pills">
+      <span class="pill hi">Claude Code</span>
+      <span class="pill hi">Java 17</span>
+      <span class="pill hi">Spring MVC</span>
+      <span class="pill">MyBatis</span>
+      <span class="pill">Thymeleaf</span>
+      <span class="pill">멀티모듈</span>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- INTRO -->
+    <section class="section">
+      <div class="sec-head">
+        <span class="sec-n">INTRO /</span>
+        <h2 class="sec-title">들어가며</h2>
+      </div>
+      <div class="prose">
+        <p>선거를 앞두고 뉴스 서비스에는 항상 숨 가쁜 시간이 온다. 개표 현황 배너 추가, 투표율 실시간 표시, 프로모션 노출 처리 — 기능 명세가 쌓이기 시작하면서 달력에 표시된 방송 날짜가 피부에 와닿는다.</p>
+        <p>이번에 달랐던 건 혼자 짊어지지 않았다는 것이다. 이번 지방선거 개발 사이클에서 처음으로 <strong>Claude Code를 실전 프로젝트에 투입</strong>했다. 탐색 도구로, 짝 프로그래머로, 때로는 설계 검토자로.</p>
+        <p>결론부터 말하면: 기대했던 곳에서 예상보다 더 잘 했고, 생각지 못한 곳에서 한계를 드러냈다. 이 글은 그 여정의 솔직한 기록이다.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-num">5+</span>
+          <span class="stat-label">AI로 탐색한<br>모듈 수</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">11</span>
+          <span class="stat-label">신규 작성<br>모델 클래스</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">0</span>
+          <span class="stat-label">퍼블리셔<br>제약 위반</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">½</span>
+          <span class="stat-label">체감 탐색<br>시간 절감</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 탐색 위임 -->
+    <section class="section">
+      <div class="sec-head">
+        <span class="sec-n">01 /</span>
+        <h2 class="sec-title">첫 번째 결정 — 레거시 탐색을 AI에게 위임하다</h2>
+      </div>
+      <div class="prose">
+        <p>우리 프로젝트는 수년에 걸쳐 여러 개발자가 거쳐간 Spring 기반 멀티모듈 구조다. 웹 프론트, 모바일 API, 뉴스 서비스, 글로벌 공통, TV까지 모듈이 분산되어 있다. 신기능을 붙이려면 "비슷한 기능이 어디에, 어떻게 이미 구현되어 있는지"를 파악하는 것이 첫 관문이다.</p>
+        <p>이 작업은 보통 <strong>가장 많은 시간을 잡아먹는 구간</strong>이다. grep을 돌리고, 파일을 열고, 호출 흐름을 머릿속으로 추적하고, 다시 상위 레이어로 거슬러 올라가는 과정. 익숙한 사람도 30분, 낯선 모듈이라면 반나절이 사라진다.</p>
+      </div>
+
+      <div class="decision">
+        <div class="decision-label">DECISION POINT</div>
+        <p><strong style="color:var(--text)">코드 탐색 자체를 AI에게 맡기자.</strong></p>
+        <p>AI에게 직접 구현을 맡기는 것이 아니라, 먼저 "이 코드베이스가 어떻게 생겼는지" 파악하는 작업에 투입하는 것. 정확히 여기서 Claude Code가 가장 빛났다. 컨트롤러 위치, 서비스 레이어 구조, 외부 API 호출 패턴 — 이것들을 묻는 데 걸린 시간이 체감상 절반 이하로 줄었다.</p>
+      </div>
+
+      <p class="sub-title">// 탐색이 특히 효과적이었던 세 가지 상황</p>
+
+      <ul class="reasons">
+        <li data-n="01">
+          <strong>유사 패턴 선례 탐색</strong>
+          "이 프로젝트에서 외부 API를 호출하는 기존 서비스를 찾아줘"라고 하면 관련 파일과 패턴을 빠르게 집어냈다. 선례를 찾은 후 "이 패턴과 동일하게 구현하면 된다"는 판단을 빠르게 내릴 수 있었다. 직접 탐색했다면 grep + 파일 열기를 수십 번 반복했을 것이다.
+        </li>
+        <li data-n="02">
+          <strong>암호화·인증 흐름 전체 추적</strong>
+          멀티모듈에 흩어진 Triple DES, DES, SHA-256 사용처를 코드베이스 전체에서 추적하고 구조화해서 보여주는 작업. 혼자 했다면 두 시간 가까이 걸렸을 것이다. AI와 함께하니 30분 안에 전체 그림이 나왔다. 이 차이가 실전에서의 체감 가치를 만들어냈다.
+        </li>
+        <li data-n="03">
+          <strong>모듈 간 의존 관계 파악</strong>
+          <code>service-news</code>의 <code>NewsBoardService</code>가 어느 컨트롤러에서 호출되는지, 모바일과 PC 프론트가 같은 서비스를 공유하는지를 묻자 즉시 답했다. 이 질문 하나로 "PC와 모바일에 같은 엔드포인트를 추가해야 한다"는 구현 범위가 확정됐다.
+        </li>
+      </ul>
+    </section>
+
+    <!-- 02 개발 흐름 -->
+    <section class="section">
+      <div class="sec-head">
+        <span class="sec-n">02 /</span>
+        <h2 class="sec-title">개발 흐름 — 외부 API에서 화면까지</h2>
+      </div>
+      <div class="prose">
+        <p>선거 데이터는 외부에서 들어온다. 실시간 개표 데이터를 제공하는 API를 호출하고, 가공해서, 프론트에 내려주는 구조다. 새로운 기능이지만 패턴 자체는 기존 코드와 동일하다. AI가 선례를 찾아준 덕분에 구조 결정은 빠르게 끝났다.</p>
+      </div>
+
+      <p class="sub-title">// 구현 순서</p>
+      <ol class="steps">
+        <li>외부 선거 API 스펙 확인 — 응답 JSON 구조, 필드 타입 파악</li>
+        <li>응답 모델 클래스 작성 — <code>NewsElectionPromotion</code> 및 하위 타입들</li>
+        <li><code>NewsBoardServiceImpl.getElectionPromotionData()</code> 구현</li>
+        <li><code>IndexController</code>에 엔드포인트 추가 (PC · 모바일 각각)</li>
+        <li>Thymeleaf 뷰 연결 — 퍼블리셔 HTML 내 데이터 바인딩</li>
+      </ol>
+
+      <p class="sub-title">// Service 구현 — 실제 코드</p>
+      <div class="prose">
+        <p>외부 API 응답을 받아 파싱하는 과정에서 두 가지 처리가 필요했다. 첫째, <code>dataStatusMap</code>이 <code>Map</code> 타입이라 공통 <code>RestApiProcessor</code>가 처리할 수 없어 미리 분리해야 했다. 둘째, 전국 데이터와 지역 데이터를 <code>partitioningBy</code>로 분리해서 각각 저장해야 했다.</p>
+      </div>
+
+      <pre data-lang="java"><code><span class="at">@Override</span>
+<span class="kw">public</span> <span class="cl">NewsElectionPromotion</span> <span class="nm">getElectionPromotionData</span>() {
+    <span class="cl">UriComponents</span> uri = <span class="cl">UriComponentsBuilder</span>
+            .<span class="nm">newInstance</span>()
+            .<span class="nm">scheme</span>(<span class="st">"https"</span>)
+            .<span class="nm">host</span>(newsPriDomain)
+            .<span class="nm">path</span>(NEWS_ELECTION_PROMO_URL)
+            .<span class="nm">build</span>();
+
+    <span class="cl">JSONObject</span> data = restApiProcessor.<span class="nm">getJsonData</span>(uri.<span class="nm">toString</span>(), <span class="st">"data"</span>);
+
+    <span class="kw">if</span> (data == <span class="kw">null</span>) {
+        LOGGER.<span class="nm">info</span>(<span class="st">"[INFO] NEWS Election API response NULL"</span>);
+        <span class="kw">return null</span>;
+    }
+
+    <span class="cm">// dataStatusMap은 Map 타입 — RestApiProcessor가 처리 불가, 미리 분리</span>
+    <span class="cl">JSONObject</span> filteredData = <span class="kw">new</span> <span class="cl">JSONObject</span>();
+    filteredData.<span class="nm">putAll</span>(data);
+    filteredData.<span class="nm">remove</span>(<span class="st">"dataStatusMap"</span>);
+
+    <span class="cl">NewsElectionPromotion</span> promotion = restApiProcessor.<span class="nm">getJsonParser</span>(
+            <span class="cl">NewsElectionPromotion</span>.<span class="kw">class</span>, filteredData, <span class="st">"com.jtbc.news.model.json.election."</span>);
+
+    <span class="kw">if</span> (promotion == <span class="kw">null</span> || <span class="st">"N"</span>.<span class="nm">equalsIgnoreCase</span>(promotion.<span class="nm">getBannerYn</span>())) {
+        <span class="kw">return null</span>; <span class="cm">// bannerYn = N이면 전체 미노출</span>
+    }
+
+    <span class="cm">// 전국 데이터를 지역 데이터와 분리</span>
+    <span class="cl">Map</span>&lt;<span class="cl">Boolean</span>, <span class="cl">List</span>&lt;<span class="cl">BallotChartList</span>&gt;&gt; partitioned = promotion.<span class="nm">getBallotChartList</span>()
+            .<span class="nm">stream</span>()
+            .<span class="nm">collect</span>(<span class="cl">Collectors</span>.<span class="nm">partitioningBy</span>(
+                item -&gt; NATIONWIDE_REGION_CODE.<span class="nm">equals</span>(item.<span class="nm">getRegionCode</span>())));
+
+    promotion.<span class="nm">setNationwideBallotList</span>(partitioned.<span class="nm">get</span>(<span class="kw">true</span>));
+    promotion.<span class="nm">setBallotChartList</span>(partitioned.<span class="nm">get</span>(<span class="kw">false</span>));
+
+    <span class="cm">// electionStatusMap: String key → ElectionType enum으로 매핑</span>
+    <span class="cl">JSONObject</span> electionStatusMap = (<span class="cl">JSONObject</span>) data.<span class="nm">get</span>(<span class="st">"electionStatusMap"</span>);
+    <span class="kw">if</span> (electionStatusMap != <span class="kw">null</span>) {
+        <span class="cl">List</span>&lt;<span class="cl">ElectionStatusList</span>&gt; statusList = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+        <span class="kw">for</span> (<span class="cl">Object</span> key : electionStatusMap.<span class="nm">keySet</span>()) {
+            statusList.<span class="nm">add</span>(<span class="cl">ElectionStatusList</span>.<span class="nm">builder</span>()
+                    .<span class="nm">electionType</span>(<span class="cl">ElectionType</span>.<span class="nm">fromValue</span>((<span class="cl">String</span>) key))
+                    .<span class="nm">electionStatusBadge</span>(<span class="cl">ElectionStatusBadge</span>.<span class="nm">fromValue</span>(
+                        (<span class="cl">String</span>) electionStatusMap.<span class="nm">get</span>(key)))
+                    .<span class="nm">build</span>());
+        }
+        promotion.<span class="nm">setElectionStatusList</span>(statusList);
+    }
+
+    <span class="kw">return</span> promotion;
+}</code></pre>
+
+      <p class="sub-title">// Controller — PC · 모바일 동일 패턴</p>
+
+      <pre data-lang="java"><code><span class="at">@Value</span>(<span class="st">"${jtbc.election.rotate-disabled:false}"</span>)
+<span class="kw">private boolean</span> electionRotateDisabled;
+
+<span class="at">@GetMapping</span>(<span class="st">"/main/election/2026"</span>)
+<span class="kw">public</span> <span class="cl">String</span> <span class="nm">electionPage</span>(<span class="cl">ModelMap</span> model) {
+    model.<span class="nm">addAttribute</span>(<span class="st">"electionData"</span>, newsBoardService.<span class="nm">getElectionPromotionData</span>());
+    model.<span class="nm">addAttribute</span>(<span class="st">"electionRotateDisabled"</span>, electionRotateDisabled);
+    <span class="kw">return</span> <span class="st">"main/section/election/election-2026"</span>;
+}</code></pre>
+
+      <div class="prose">
+        <p>컨트롤러는 단순하다. 서비스를 호출하고, 모델에 담고, 뷰를 반환한다. 여기서 내 역할은 AI가 제안한 뼈대의 <strong>적합성을 판단하는 것</strong>이었다 — <code>bannerYn = "N"</code>이면 null을 반환해 뷰에서 전체 미노출 처리하는 방식이 맞는지, <code>rotate-disabled</code> 플래그를 yml에서 주입받는 게 맞는지. 검토 책임은 여전히 내 몫이었다.</p>
+      </div>
+    </section>
+
+    <!-- 03 퍼블리셔 -->
+    <section class="section">
+      <div class="sec-head">
+        <span class="sec-n">03 /</span>
+        <h2 class="sec-title">퍼블리셔 HTML과의 경계선</h2>
+      </div>
+      <div class="prose">
+        <p>방송사 뉴스 서비스의 특성상, HTML 마크업은 퍼블리셔가 제작하고 개발자는 그 틀 안에서 기능을 붙인다. 언뜻 단순해 보이지만, 실제로는 꽤 까다로운 제약이다.</p>
+      </div>
+
+      <div class="decision">
+        <div class="decision-label">IMPLICIT RULE</div>
+        <p><strong style="color:var(--text)">"퍼블리셔 HTML에 없는 클래스는 추가하지 않는다."</strong></p>
+        <p>이 한 줄이 개발 범위를 정의한다. 이 규칙은 코드에 적혀 있지 않다. 팀의 암묵적 컨벤션이다. 그리고 AI는 이런 규칙을 모른다.</p>
+      </div>
+
+      <div class="prose">
+        <p>기능 구현 중 특정 상태일 때 요소에 스타일을 추가해야 하는 상황이 생겼다. AI의 첫 번째 제안은 클래스를 추가하는 방향이었다. 퍼블리셔 작업물을 넘어서는 순간이다.</p>
+        <p>해결책은 제약 조건을 명시적으로 프롬프트에 넣는 것이었다. <strong>"퍼블리셔 HTML을 수정할 수 없다. 기존 클래스 구조 안에서 dim 상태를 표현해야 한다."</strong> 이 맥락이 들어가자 제안이 완전히 달라졌다. <strong>도구를 잘 쓰는 것도 결국 컨텍스트를 잘 전달하는 능력이다.</strong></p>
+      </div>
+    </section>
+
+    <!-- 04 어려웠던 것들 -->
+    <section class="section">
+      <div class="sec-head">
+        <span class="sec-n">04 /</span>
+        <h2 class="sec-title">예상보다 어려웠던 것들</h2>
+      </div>
+      <div class="prose">
+        <p>계획대로 흘러가지 않는 부분이 있었다. AI를 쓴다고 해서 모든 게 매끄럽지는 않았다. 시간이 걸린 것들을 솔직하게 기록한다.</p>
+      </div>
+
+      <div class="trouble">
+        <div class="trouble-label">CHALLENGE 01</div>
+        <p><strong style="color:var(--text)">암묵적 팀 컨벤션을 AI가 모른다</strong></p>
+        <p>퍼블리셔 협업 방식, 레거시 코드베이스의 관례, 팀의 코딩 컨벤션 — 이것들은 코드에 적혀 있지 않다. AI의 첫 제안이 팀 규칙에 어긋나는 경우가 반복됐다. 이것을 매번 프롬프트에 명시하는 습관이 생기기까지 시간이 걸렸다. 습관이 정착된 이후에는 제안 품질이 눈에 띄게 달라졌다.</p>
+      </div>
+
+      <div class="trouble">
+        <div class="trouble-label">CHALLENGE 02</div>
+        <p><strong style="color:var(--text)">RestApiProcessor의 타입 한계</strong></p>
+        <p>공통 <code>RestApiProcessor</code>가 <code>Map&lt;String, Boolean&gt;</code> 타입을 자동 파싱하지 못한다는 것을 파싱 오류가 발생한 후에야 알았다. <code>dataStatusMap</code> 필드를 미리 <code>JSONObject</code>에서 꺼내 별도 처리하는 방식으로 해결했지만, 이 제약은 AI가 알 수 없는 내부 라이브러리 동작이었다. 외부 라이브러리나 내부 유틸의 동작은 직접 확인해야 한다.</p>
+      </div>
+
+      <div class="trouble">
+        <div class="trouble-label">CHALLENGE 03</div>
+        <p><strong style="color:var(--text)">비즈니스 판단은 여전히 사람 몫</strong></p>
+        <p><code>bannerYn = "N"</code>이면 null을 반환할 것인지, 빈 객체를 반환할 것인지 — AI는 패턴을 제안하지만 이 선택의 의미는 사람이 판단해야 한다. null 반환 시 뷰에서 전체 섹션을 미노출 처리하는 것이 의도인지, 아니면 기본 UI는 노출하되 데이터만 비어야 하는지. 기획 의도를 아는 것은 사람뿐이다.</p>
+      </div>
+    </section>
+
+    <!-- 05 배운 것들 -->
+    <section class="section">
+      <div class="sec-head">
+        <span class="sec-n">05 /</span>
+        <h2 class="sec-title">배운 것들</h2>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">INSIGHT 01</div>
+          <p><strong style="color:var(--text)">AI는 코드를 쓰는 게 아니라 코드베이스를 읽는다.</strong> 탐색 단계에서 가장 큰 시간을 절약했다. 구현 단계에서는 선례를 찾아주고 뼈대를 제안하지만, 판단과 검토는 여전히 사람 몫이다. 이 역할 분리를 명확히 인식하고 나서 협업 방식이 안정됐다.</p>
+        </div>
+        <div class="card">
+          <div class="card-label">INSIGHT 02</div>
+          <p><strong style="color:var(--text)">제약을 명시해야 제안이 바뀐다.</strong> AI는 범용적으로 최선인 방법을 제안한다. 프로젝트의 특수한 제약 — 퍼블리셔 HTML 구조, 내부 라이브러리 한계, 팀 컨벤션 — 은 코드에 없다. 이것들을 프롬프트에 명시적으로 녹여 넣는 것이 AI 협업의 핵심 스킬이다.</p>
+        </div>
+        <div class="card">
+          <div class="card-label">INSIGHT 03</div>
+          <p><strong style="color:var(--text)">첫 제안이 항상 최선은 아니다.</strong> AI의 첫 번째 답변을 그대로 쓰면 컨텍스트 부족으로 팀 관례에 어긋나는 경우가 생긴다. 제안을 받으면 "이것이 우리 프로젝트 맥락에서 적합한가"를 먼저 검토하는 습관이 필요하다. 빠른 탐색 + 사람의 판단이 맞물릴 때 효과가 극대화된다.</p>
+        </div>
+        <div class="card">
+          <div class="card-label">INSIGHT 04</div>
+          <p><strong style="color:var(--text)">탐색 비용 절감이 가장 큰 실질 효과였다.</strong> 구현 속도보다 코드 탐색 속도가 훨씬 크게 줄었다. 레거시 멀티모듈 프로젝트에서 신기능을 붙일 때 "어디에, 어떻게"를 파악하는 비용이 크다. AI가 그 비용을 절반 이하로 낮춰줬다. 이 부분이 다음 프로젝트에서도 가장 먼저 활용하고 싶은 영역이다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUTRO -->
+    <div class="outro">
+      <p>개표 방송이 끝나고 화면에서 프로모션 배너가 사라지는 걸 보면서 이상한 뿌듯함이 있었다. "이게 내가 만든 거구나" — 그리고 동시에 "이번엔 AI랑 같이 만들었구나"라는 생각.</p>
+      <p>다음에는 <strong>프로젝트 컨텍스트를 AI에게 더 일찍, 더 체계적으로 전달</strong>하고 싶다. 팀의 코딩 컨벤션, 퍼블리셔 협업 규칙, 자주 쓰는 레거시 패턴 — 이것들을 처음부터 정리해서 넘겨주면 제안 품질이 훨씬 높아질 것이다.</p>
+      <p>AI가 개발자를 대체한다는 이야기를 종종 듣는다. 이번 경험에서 느낀 건 조금 다르다. <strong>AI는 내가 이미 알고 있는 것을 더 빠르게 할 수 있게 해준다.</strong> 판단과 책임은 여전히 내 몫이었고, 그게 바뀌지 않았다는 게 오히려 안심이 됐다.</p>
+      <p>다음 선거도, 어떤 형태로든 또 만들겠지. 그때도 이 친구랑 같이 할 것 같다.</p>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    // end of file — written with Spring MVC, MyBatis, and a lot of election API calls
+  </footer>
+
+</div>
+
+<script>
+const MARKDOWN = `# 지방선거 개표 방송, AI와 함께 개발했습니다
+## 혼자 grep 돌리던 레거시 탐색에서 → AI와 함께한 개발 사이클로
+
+> 마감은 촉박하고 코드베이스는 낯설었다. Claude Code를 실전에 처음 투입한 기록 — 무엇이 도움이 됐고, 어디서 삐걱거렸고, 다음엔 뭘 다르게 할 것인가.
+
+**기술 스택:** Claude Code · Java 17 · Spring MVC · MyBatis · Thymeleaf · 멀티모듈
+
+---
+
+## 들어가며
+
+선거를 앞두고 뉴스 서비스에는 항상 숨 가쁜 시간이 온다. 개표 현황 배너 추가, 투표율 실시간 표시, 프로모션 노출 처리 — 기능 명세가 쌓이기 시작하면서 달력에 표시된 방송 날짜가 피부에 와닿는다.
+
+이번에 달랐던 건 혼자 짊어지지 않았다는 것이다. 이번 지방선거 개발 사이클에서 처음으로 **Claude Code를 실전 프로젝트에 투입**했다. 탐색 도구로, 짝 프로그래머로, 때로는 설계 검토자로.
+
+결론부터 말하면: 기대했던 곳에서 예상보다 더 잘 했고, 생각지 못한 곳에서 한계를 드러냈다.
+
+| 지표 | 수치 |
+|------|------|
+| AI로 탐색한 모듈 수 | 5+ |
+| 신규 작성 모델 클래스 | 11개 |
+| 퍼블리셔 제약 위반 | 0건 |
+| 체감 탐색 시간 절감 | 약 50% |
+
+---
+
+## 1. 첫 번째 결정 — 레거시 탐색을 AI에게 위임하다
+
+우리 프로젝트는 수년에 걸쳐 여러 개발자가 거쳐간 Spring 기반 멀티모듈 구조다. 웹 프론트, 모바일 API, 뉴스 서비스, 글로벌 공통, TV까지 모듈이 분산되어 있다. 신기능을 붙이려면 "비슷한 기능이 어디에, 어떻게 이미 구현되어 있는지"를 파악하는 것이 첫 관문이다.
+
+이 작업은 보통 **가장 많은 시간을 잡아먹는 구간**이다. grep을 돌리고, 파일을 열고, 호출 흐름을 머릿속으로 추적하고, 다시 상위 레이어로 거슬러 올라가는 과정.
+
+> **결정 포인트**
+>
+> "코드 탐색 자체를 AI에게 맡기자." AI에게 직접 구현을 맡기는 것이 아니라, 먼저 "이 코드베이스가 어떻게 생겼는지" 파악하는 작업에 투입하는 것. 정확히 여기서 Claude Code가 가장 빛났다.
+
+### 탐색이 특히 효과적이었던 세 가지 상황
+
+**01. 유사 패턴 선례 탐색**
+"이 프로젝트에서 외부 API를 호출하는 기존 서비스를 찾아줘"라고 하면 관련 파일과 패턴을 빠르게 집어냈다. 선례를 찾은 후 "이 패턴과 동일하게 구현하면 된다"는 판단을 빠르게 내릴 수 있었다.
+
+**02. 암호화·인증 흐름 전체 추적**
+멀티모듈에 흩어진 Triple DES, DES, SHA-256 사용처를 코드베이스 전체에서 추적하고 구조화해서 보여주는 작업. 혼자 했다면 두 시간 가까이 걸렸을 것이다. AI와 함께하니 30분 안에 전체 그림이 나왔다.
+
+**03. 모듈 간 의존 관계 파악**
+\`service-news\`의 \`NewsBoardService\`가 어느 컨트롤러에서 호출되는지, 모바일과 PC 프론트가 같은 서비스를 공유하는지를 묻자 즉시 답했다.
+
+---
+
+## 2. 개발 흐름 — 외부 API에서 화면까지
+
+선거 데이터는 외부에서 들어온다. 실시간 개표 데이터를 제공하는 API를 호출하고, 가공해서, 프론트에 내려주는 구조다.
+
+**구현 순서**
+
+1. 외부 선거 API 스펙 확인 — 응답 JSON 구조, 필드 타입 파악
+2. 응답 모델 클래스 작성 — \`NewsElectionPromotion\` 및 하위 타입들
+3. \`NewsBoardServiceImpl.getElectionPromotionData()\` 구현
+4. \`IndexController\`에 엔드포인트 추가 (PC · 모바일 각각)
+5. Thymeleaf 뷰 연결 — 퍼블리셔 HTML 내 데이터 바인딩
+
+\`\`\`java
+// NewsBoardServiceImpl.java
+@Override
+public NewsElectionPromotion getElectionPromotionData() {
+    UriComponents uri = UriComponentsBuilder
+            .newInstance()
+            .scheme("https")
+            .host(newsPriDomain)
+            .path(NEWS_ELECTION_PROMO_URL)
+            .build();
+
+    JSONObject data = restApiProcessor.getJsonData(uri.toString(), "data");
+
+    if (data == null) {
+        LOGGER.info("[INFO] NEWS Election API response NULL");
+        return null;
+    }
+
+    // dataStatusMap은 Map 타입 — RestApiProcessor가 처리 불가, 미리 분리
+    JSONObject filteredData = new JSONObject();
+    filteredData.putAll(data);
+    filteredData.remove("dataStatusMap");
+
+    NewsElectionPromotion promotion = restApiProcessor.getJsonParser(
+            NewsElectionPromotion.class, filteredData, "com.jtbc.news.model.json.election.");
+
+    if (promotion == null || "N".equalsIgnoreCase(promotion.getBannerYn())) {
+        return null; // bannerYn = N이면 전체 미노출
+    }
+
+    // 전국 데이터를 지역 데이터와 분리
+    Map<Boolean, List<BallotChartList>> partitioned = promotion.getBallotChartList()
+            .stream()
+            .collect(Collectors.partitioningBy(
+                item -> NATIONWIDE_REGION_CODE.equals(item.getRegionCode())));
+
+    promotion.setNationwideBallotList(partitioned.get(true));
+    promotion.setBallotChartList(partitioned.get(false));
+
+    return promotion;
+}
+\`\`\`
+
+\`\`\`java
+// IndexController.java
+@Value("\${jtbc.election.rotate-disabled:false}")
+private boolean electionRotateDisabled;
+
+@GetMapping("/main/election/2026")
+public String electionPage(ModelMap model) {
+    model.addAttribute("electionData", newsBoardService.getElectionPromotionData());
+    model.addAttribute("electionRotateDisabled", electionRotateDisabled);
+    return "main/section/election/election-2026";
+}
+\`\`\`
+
+컨트롤러는 단순하다. 여기서 내 역할은 AI가 제안한 뼈대의 **적합성을 판단하는 것**이었다. 검토 책임은 여전히 내 몫이었다.
+
+---
+
+## 3. 퍼블리셔 HTML과의 경계선
+
+방송사 뉴스 서비스의 특성상, HTML 마크업은 퍼블리셔가 제작하고 개발자는 그 틀 안에서 기능을 붙인다.
+
+> **암묵적 규칙:** "퍼블리셔 HTML에 없는 클래스는 추가하지 않는다."
+> 이 한 줄이 개발 범위를 정의한다. 이 규칙은 코드에 적혀 있지 않다. AI는 이런 규칙을 모른다.
+
+AI의 첫 번째 제안은 클래스를 추가하는 방향이었다. 해결책은 제약 조건을 명시적으로 프롬프트에 넣는 것이었다. **"퍼블리셔 HTML을 수정할 수 없다. 기존 클래스 구조 안에서 dim 상태를 표현해야 한다."** 이 맥락이 들어가자 제안이 완전히 달라졌다. **도구를 잘 쓰는 것도 결국 컨텍스트를 잘 전달하는 능력이다.**
+
+---
+
+## 4. 예상보다 어려웠던 것들
+
+### CHALLENGE 01 — 암묵적 팀 컨벤션을 AI가 모른다
+
+퍼블리셔 협업 방식, 레거시 코드베이스의 관례, 팀의 코딩 컨벤션 — 이것들은 코드에 적혀 있지 않다. AI의 첫 제안이 팀 규칙에 어긋나는 경우가 반복됐다. 이것을 매번 프롬프트에 명시하는 습관이 생기기까지 시간이 걸렸다.
+
+### CHALLENGE 02 — RestApiProcessor의 타입 한계
+
+공통 \`RestApiProcessor\`가 \`Map<String, Boolean>\` 타입을 자동 파싱하지 못한다는 것을 파싱 오류가 발생한 후에야 알았다. 외부 라이브러리나 내부 유틸의 동작은 직접 확인해야 한다 — AI가 알 수 없는 내부 제약이다.
+
+### CHALLENGE 03 — 비즈니스 판단은 여전히 사람 몫
+
+\`bannerYn = "N"\`이면 null을 반환할 것인지, 빈 객체를 반환할 것인지 — AI는 패턴을 제안하지만 이 선택의 의미는 사람이 판단해야 한다. 기획 의도를 아는 것은 사람뿐이다.
+
+---
+
+## 5. 배운 것들
+
+**INSIGHT 01 — AI는 코드를 쓰는 게 아니라 코드베이스를 읽는다**
+
+탐색 단계에서 가장 큰 시간을 절약했다. 구현 단계에서는 선례를 찾아주고 뼈대를 제안하지만, 판단과 검토는 여전히 사람 몫이다.
+
+**INSIGHT 02 — 제약을 명시해야 제안이 바뀐다**
+
+AI는 범용적으로 최선인 방법을 제안한다. 프로젝트의 특수한 제약을 프롬프트에 명시적으로 녹여 넣는 것이 AI 협업의 핵심 스킬이다.
+
+**INSIGHT 03 — 첫 제안이 항상 최선은 아니다**
+
+AI의 첫 번째 답변을 그대로 쓰면 컨텍스트 부족으로 팀 관례에 어긋나는 경우가 생긴다. 빠른 탐색 + 사람의 판단이 맞물릴 때 효과가 극대화된다.
+
+**INSIGHT 04 — 탐색 비용 절감이 가장 큰 실질 효과였다**
+
+레거시 멀티모듈 프로젝트에서 신기능을 붙일 때 "어디에, 어떻게"를 파악하는 비용이 크다. AI가 그 비용을 절반 이하로 낮춰줬다.
+
+---
+
+## 마치며
+
+개표 방송이 끝나고 화면에서 프로모션 배너가 사라지는 걸 보면서 이상한 뿌듯함이 있었다. "이게 내가 만든 거구나" — 그리고 동시에 "이번엔 AI랑 같이 만들었구나"라는 생각.
+
+다음에는 **프로젝트 컨텍스트를 AI에게 더 일찍, 더 체계적으로 전달**하고 싶다. 팀의 코딩 컨벤션, 퍼블리셔 협업 규칙, 자주 쓰는 레거시 패턴 — 이것들을 처음부터 정리해서 넘겨주면 제안 품질이 훨씬 높아질 것이다.
+
+**AI는 내가 이미 알고 있는 것을 더 빠르게 할 수 있게 해준다.** 판단과 책임은 여전히 내 몫이었고, 그게 바뀌지 않았다는 게 오히려 안심이 됐다.
+
+다음 선거도, 어떤 형태로든 또 만들겠지. 그때도 이 친구랑 같이 할 것 같다.
+
+---
+
+\`#AI개발\` \`#ClaudeCode\` \`#Java\` \`#Spring\` \`#레거시\` \`#개발일기\`
+`;
+
+function copyMarkdown(btn) {
+  const textarea = document.createElement('textarea');
+  textarea.value = MARKDOWN;
+  textarea.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  const succeed = () => {
+    btn.textContent = '복사 완료 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '마크다운 복사';
+      btn.classList.remove('copied');
+    }, 2000);
+  };
+
+  try {
+    document.execCommand('copy');
+    succeed();
+  } catch (e) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(MARKDOWN).then(succeed);
+    }
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
